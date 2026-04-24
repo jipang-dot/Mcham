@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>McDonald's 햄버거 교육 게임</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; cursor: pointer; }
 
 body {
   background: #111;
@@ -70,7 +71,7 @@ body {
 .scr {
   display: none;
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   padding: 0.7em;
 }
 .scr.on { display: flex; }
@@ -517,7 +518,7 @@ const SAUCE_LIST = [
   '불고기소스','케찹','겨자'
 ];
 
-const G = (() => {
+window.G = (() => {
   let menu = '', bread = '', sauces = {}, vegEls = [], patty = '';
   let t0 = 0, elapsed = 0, tid = null;
 
