@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>McDonald's 햄버거 교육 게임</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Arial', 'Malgun Gothic', sans-serif;
+}
+
+#game {
+  position: relative;
+  background: #1a1a2e;
+  border: 3px solid #ffc72c;
+  border-radius: 10px;
+  overflow: hidden;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  display: flex;
+  flex-direction: column;
+  font-size: calc(min(100vw, calc(100vh * 16 / 9)) / 62);
+}
+
+.hdr {
+  background: #da291c;
+  color: #ffc72c;
+  padding: 0.35em 0.8em;
+  font-weight: bold;
+  font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.hdr-menu { color: #fff; font-size: 0.85em; font-weight: normal; }
+
+.progress {
+  display: flex;
+  gap: 0.25em;
+  padding: 0.25em 0.8em;
+  background: #0d1117;
+  flex-shrink: 0;
+}
+.pdot {
+  height: 0.35em;
+  flex: 1;
+  border-radius: 2px;
+  background: #333;
+  transition: background 0.3s;
+}
+.pdot.done { background: #00cc66; }
+.pdot.active { background: #ffc72c; }
+
+.area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.scr {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: 0.7em;
+}
+.scr.on { display: flex; }
+
+/* ===== START ===== */
+#s-start {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #0d1117;
+  gap: 0.4em;
+}
+.start-logo { color: #ffc72c; font-size: 2.8em; font-weight: 900; letter-spacing: -2px; }
+.start-sub { color: #da291c; font-size: 1.3em; font-weight: bold; }
+.start-desc { color: #888; font-size: 0.85em; text-align: center; line-height: 1.5; margin-top: 0.2em; }
+.btn-start {
+  margin-top: 1em;
+  padding: 0.7em 3.5em;
+  background: #ffc72c;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.3em;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-start:hover { background: #ffd54f; }
+
+/* ===== BREAD ===== */
+#s-bread { gap: 0.7em; }
+
+.left-col {
+  width: 37%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+.right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.panel-title {
+  color: #ffc72c;
+  font-size: 0.75em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bread-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+.bread-item {
+  padding: 0.65em 0.6em;
+  background: #0f3460;
+  border: 2px solid #2a4a80;
+  border-radius: 6px;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.9em;
+  text-align: center;
+  font-family: inherit;
+  transition: all 0.15s;
+  font-weight: bold;
+}
+.bread-item:hover { border-color: #ffc72c; color: #fff; }
+.bread-item.sel {
+  background: #c0392b;
+  border-color: #ffc72c;
+  color: #fff;
+}
+
+.monitor {
+  flex: 1;
+  background: #0a3d62;
+  border: 3px solid #555;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0.8em;
+  box-shadow: inset 0 0 2em rgba(0,0,0,0.6);
+}
+.mon-inner {
+  background: #001122;
+  border-radius: 4px;
+  padding: 0.8em 1.5em;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 0.5em;
+  border: 1px solid #1a3a5c;
+}
+.mon-label { color: #444; font-size: 0.65em; font-family: monospace; letter-spacing: 0.1em; }
+.mon-menu { color: #ffd700; font-size: 1.7em; font-weight: bold; font-family: monospace; text-shadow: 0 0 12px #ffd700; }
+.mon-hint { color: #667; font-size: 0.72em; text-align: center; line-height: 1.4; }
+
+.timer-row { color: #ffc72c; font-size: 0.8em; font-family: monospace; text-align: right; }
+
+.summary {
+  background: #0a1628;
+  border: 1px solid #2a3a5a;
+  border-radius: 5px;
+  padding: 0.4em 0.7em;
+  color: #666;
+  font-size: 0.78em;
+  line-height: 1.4;
+}
+.summary em { color: #00cc66; font-style: normal; font-weight: bold; }
+
+.btn-ok {
+  padding: 0.6em 1em;
+  background: #ffc72c;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 7px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn-ok:disabled { background: #3a3a3a; color: #666; cursor: not-allowed; }
+.btn-ok:not(:disabled):hover { background: #ffd54f; }
+
+/* ===== SAUCE ===== */
+#s-sauce { gap: 0.7em; }
+
+.sauce-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.38em;
+  flex: 1;
+}
+.sauce-card {
+  background: #0f3460;
+  border: 2px solid #2a4a80;
+  border-radius: 7px;
+  padding: 0.45em 0.3em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25em;
+}
+.sauce-card.sel { background: #1a4a2a; border-color: #00cc66; }
+.sauce-name { color: #ccc; font-size: 0.7em; text-align: center; line-height: 1.2; }
+.sauce-ctrl { display: flex; align-items: center; gap: 0.25em; }
+.sauce-btn {
+  width: 1.5em; height: 1.5em;
+  background: #ffc72c; color: #1a1a2e;
+  border: none; border-radius: 3px;
+  font-weight: bold; font-size: 0.88em;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+}
+.sauce-btn:hover { background: #ffd54f; }
+.sauce-count { color: #fff; font-weight: bold; font-size: 0.88em; min-width: 1em; text-align: center; }
+
+/* ===== VEGGIE ===== */
+#s-veggie { flex-direction: column; gap: 0.5em; }
+
+.row-label { color: #ffc72c; font-size: 0.75em; font-weight: bold; margin-bottom: 0.2em; }
+.veg-row { display: flex; gap: 0.38em; flex-wrap: wrap; }
+.veg-item {
+  padding: 0.55em 0.85em;
+  background: #0f3460;
+  border: 2px solid #2a4a80;
+  border-radius: 6px;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.82em;
+  font-family: inherit;
+  font-weight: bold;
+  transition: all 0.15s;
+}
+.veg-item:hover { border-color: #ffc72c; color: #fff; }
+.veg-item.sel { background: #1a5276; border-color: #00cc66; color: #fff; }
+
+/* ===== PATTY ===== */
+#s-patty { flex-direction: column; gap: 0.6em; }
+
+.patty-row {
+  flex: 1;
+  display: flex;
+  gap: 0.8em;
+  justify-content: center;
+  align-items: center;
+}
+.patty-card {
+  flex: 1;
+  max-width: 28%;
+  padding: 1.2em 0.5em;
+  background: #0f3460;
+  border: 3px solid #2a4a80;
+  border-radius: 10px;
+  color: #ccc;
+  font-size: 0.95em;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.patty-card:hover { border-color: #ffc72c; color: #fff; }
+.patty-card.sel { background: #4a1a7a; border-color: #ffc72c; color: #fff; }
+.patty-icon { font-size: 1.6em; display: block; margin-bottom: 0.3em; }
+
+/* ===== SCORE ===== */
+#s-score {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7em;
+  background: #0d1117;
+}
+.score-title { color: #ffc72c; font-size: 1.6em; font-weight: bold; }
+.score-box {
+  background: #161b22;
+  border: 2px solid #ffc72c;
+  border-radius: 10px;
+  padding: 1em 1.8em;
+  min-width: 48%;
+  max-width: 80%;
+}
+.score-menu { color: #da291c; text-align: center; font-size: 1.05em; font-weight: bold; margin-bottom: 0.7em; }
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.28em 0;
+  border-bottom: 1px solid #1e2530;
+  font-size: 0.88em;
+  color: #bbb;
+}
+.ok { color: #00cc66; font-weight: bold; }
+.ng { color: #ff4444; font-weight: bold; }
+.score-hint { color: #666; font-size: 0.7em; text-align: right; margin-top: 0.15em; margin-bottom: 0.3em; }
+.score-pts {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3em 0;
+  font-size: 0.88em;
+  color: #ccc;
+  margin-top: 0.3em;
+}
+.score-pts span:last-child { color: #ffc72c; font-weight: bold; }
+.score-total {
+  color: #ffc72c;
+  font-size: 1.7em;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0.5em;
+  padding-top: 0.4em;
+  border-top: 2px solid #ffc72c;
+}
+.btn-restart {
+  padding: 0.65em 3em;
+  background: #da291c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05em;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-restart:hover { background: #e84040; }
+
+/* Portrait warning */
+@media (orientation: portrait) and (max-width: 640px) {
+  #rotate-msg { display: flex !important; }
+  #game { display: none; }
+}
+#rotate-msg {
+  display: none;
+  position: fixed; inset: 0;
+  background: #000; color: #ffc72c;
+  justify-content: center; align-items: center;
+  flex-direction: column; gap: 1em;
+  font-size: 1.2rem; text-align: center; z-index: 999;
+}
+</style>
+</head>
+<body>
+
+<div id="rotate-msg">
+  <div style="font-size:3em">&#8635;</div>
+  <div>화면을 가로로 돌려주세요</div>
+</div>
+
+<div id="game">
+  <div class="hdr">
+    <span>McDonald's 교육 게임</span>
+    <span class="hdr-menu" id="hdr-menu"></span>
+    <span style="font-family:monospace;font-size:0.85em" id="hdr-timer"></span>
+  </div>
+  <div class="progress">
+    <div class="pdot" id="p0"></div>
+    <div class="pdot" id="p1"></div>
+    <div class="pdot" id="p2"></div>
+    <div class="pdot" id="p3"></div>
+  </div>
+
+  <div class="area">
+
+    <!-- START -->
+    <div class="scr on" id="s-start">
+      <div class="start-logo">McDonald's</div>
+      <div class="start-sub">햄버거 제조 교육</div>
+      <div class="start-desc">모니터에 표시된 메뉴를 보고<br>올바른 재료를 순서대로 선택하세요!</div>
+      <button class="btn-start" onclick="G.start()">게임 시작</button>
+    </div>
+
+    <!-- BREAD -->
+    <div class="scr" id="s-bread">
+      <div class="left-col">
+        <div class="panel-title">빵 선택</div>
+        <div class="bread-list">
+          <button class="bread-item" onclick="G.pickBread(this,'레귤러번')">레귤러번</button>
+          <button class="bread-item" onclick="G.pickBread(this,'쿼터번')">쿼터번</button>
+          <button class="bread-item" onclick="G.pickBread(this,'빅맥번')">빅맥번</button>
+          <button class="bread-item" onclick="G.pickBread(this,'브리오슈번')">브리오슈번</button>
+          <button class="bread-item" onclick="G.pickBread(this,'또띠야')">또띠야</button>
+        </div>
+        <div class="summary" id="bread-sum">선택된 빵: <em>없음</em></div>
+        <button class="btn-ok" id="bread-ok" disabled onclick="G.gotoSauce()">확인</button>
+      </div>
+      <div class="right-col">
+        <div class="monitor">
+          <div class="mon-inner">
+            <div class="mon-label">ORDER</div>
+            <div class="mon-menu" id="mon-menu">---</div>
+          </div>
+          <div class="mon-hint">주문이 들어왔습니다!<br>올바른 빵을 선택하세요.</div>
+        </div>
+        <div class="timer-row" id="timer-row"></div>
+      </div>
+    </div>
+
+    <!-- SAUCE -->
+    <div class="scr" id="s-sauce">
+      <div class="left-col">
+        <div class="panel-title">소스 현황</div>
+        <div class="summary" id="sauce-sum" style="flex:1;overflow-y:auto">선택된 소스: <em>없음</em></div>
+        <button class="btn-ok" onclick="G.gotoVeggie()">확인</button>
+      </div>
+      <div class="right-col">
+        <div class="panel-title">소스 선택 (+ / - 로 횟수 조절)</div>
+        <div class="sauce-grid" id="sauce-grid"></div>
+      </div>
+    </div>
+
+    <!-- VEGGIE -->
+    <div class="scr" id="s-veggie">
+      <div class="panel-title">야채 / 재료 선택</div>
+      <div>
+        <div class="row-label">2단 재료 (위층)</div>
+        <div class="veg-row" id="veg2">
+          <button class="veg-item" data-name="치즈" onclick="G.togVeg(this)">치즈</button>
+          <button class="veg-item" data-name="베이컨" onclick="G.togVeg(this)">베이컨</button>
+          <button class="veg-item" data-name="1/2베이컨" onclick="G.togVeg(this)">1/2베이컨</button>
+          <button class="veg-item" data-name="양파" onclick="G.togVeg(this)">양파</button>
+          <button class="veg-item" data-name="피클" onclick="G.togVeg(this)">피클</button>
+        </div>
+      </div>
+      <div>
+        <div class="row-label">1단 재료 (아래층)</div>
+        <div class="veg-row" id="veg1">
+          <button class="veg-item" data-name="토마토" onclick="G.togVeg(this)">토마토</button>
+          <button class="veg-item" data-name="쉬레드" onclick="G.togVeg(this)">쉬레드</button>
+          <button class="veg-item" data-name="랜덤" onclick="G.togVeg(this)">랜덤</button>
+          <button class="veg-item" data-name="쉬레드" onclick="G.togVeg(this)">쉬레드</button>
+          <button class="veg-item" data-name="랜덤" onclick="G.togVeg(this)">랜덤</button>
+        </div>
+      </div>
+      <div class="summary" id="veg-sum" style="flex:1">선택된 재료: <em>없음</em></div>
+      <button class="btn-ok" onclick="G.gotoPatty()">확인</button>
+    </div>
+
+    <!-- PATTY -->
+    <div class="scr" id="s-patty">
+      <div class="panel-title">패티 선택</div>
+      <div class="patty-row">
+        <button class="patty-card" onclick="G.pickPatty(this,'함박패티')">
+          <span class="patty-icon">[HB]</span>함박패티
+        </button>
+        <button class="patty-card" onclick="G.pickPatty(this,'10:1패티')">
+          <span class="patty-icon">[10:1]</span>10:1패티
+        </button>
+        <button class="patty-card" onclick="G.pickPatty(this,'맥치킨패티')">
+          <span class="patty-icon">[MC]</span>맥치킨패티
+        </button>
+      </div>
+      <div class="summary" id="patty-sum">선택된 패티: <em>없음</em></div>
+      <button class="btn-ok" id="patty-ok" disabled onclick="G.finish()">완료</button>
+    </div>
+
+    <!-- SCORE -->
+    <div class="scr" id="s-score">
+      <div class="score-title">채점 결과</div>
+      <div class="score-box" id="score-box"></div>
+      <button class="btn-restart" onclick="G.restart()">다시 하기</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const RECIPES = {
+  '치즈버거': {
+    bread: '레귤러번',
+    sauces: { '겨자': 1, '케찹': 1 },
+    veggies: ['피클', '치즈'],
+    patty: '10:1패티'
+  },
+  '불고기버거': {
+    bread: '레귤러번',
+    sauces: { '화이트마요': 1, '불고기소스': 1 },
+    veggies: ['쉬레드'],
+    patty: '함박패티'
+  },
+  '빅맥': {
+    bread: '빅맥번',
+    sauces: { '빅맥소스': 1 },
+    veggies: ['쉬레드', '피클', '치즈'],
+    patty: '10:1패티'
+  }
+};
+
+const SAUCE_LIST = [
+  '프로모션소스','스페셜스모키','스파이시어니언소스',
+  '빅맥소스','화이트마요','칠리소스',
+  '불고기소스','케찹','겨자'
+];
+
+const G = (() => {
+  let menu = '', bread = '', sauces = {}, vegEls = [], patty = '';
+  let t0 = 0, elapsed = 0, tid = null;
+
+  const $ = id => document.getElementById(id);
+  const qsa = sel => document.querySelectorAll(sel);
+
+  function show(id) {
+    qsa('.scr').forEach(s => s.classList.remove('on'));
+    $(id).classList.add('on');
+  }
+
+  function prog(step) {
+    for (let i = 0; i < 4; i++) {
+      const d = $('p' + i);
+      d.className = 'pdot';
+      if (i < step) d.classList.add('done');
+      else if (i === step) d.classList.add('active');
+    }
+  }
+
+  function startTick() {
+    t0 = Date.now();
+    tid = setInterval(() => {
+      elapsed = (Date.now() - t0) / 1000;
+      const s = elapsed.toFixed(1) + 's';
+      $('timer-row').textContent = '⏱ ' + s;
+      $('hdr-timer').textContent = '⏱ ' + s;
+    }, 100);
+  }
+
+  function stopTick() {
+    clearInterval(tid); tid = null;
+    elapsed = (Date.now() - t0) / 1000;
+  }
+
+  function buildSauceGrid() {
+    sauces = {};
+    SAUCE_LIST.forEach(n => sauces[n] = 0);
+    const g = $('sauce-grid');
+    g.innerHTML = '';
+    SAUCE_LIST.forEach(name => {
+      const d = document.createElement('div');
+      d.className = 'sauce-card';
+      d.id = 'sc-' + name;
+      d.innerHTML =
+        `<div class="sauce-name">${name}</div>` +
+        `<div class="sauce-ctrl">` +
+          `<button class="sauce-btn" onclick="G.sChg('${name}',-1)">-</button>` +
+          `<span class="sauce-count" id="sn-${name}">0</span>` +
+          `<button class="sauce-btn" onclick="G.sChg('${name}',1)">+</button>` +
+        `</div>`;
+      g.appendChild(d);
+    });
+    refreshSauceSummary();
+  }
+
+  function refreshSauceSummary() {
+    const sel = Object.entries(sauces).filter(([,v]) => v > 0)
+      .map(([k,v]) => `${k} ${v}번`).join(', ');
+    $('sauce-sum').innerHTML = '선택된 소스: <em>' + (sel || '없음') + '</em>';
+  }
+
+  function countMap(arr) {
+    const m = {};
+    arr.forEach(x => m[x] = (m[x] || 0) + 1);
+    return m;
+  }
+
+  function mapsEqual(a, b) {
+    const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+    if (ka.join() !== kb.join()) return false;
+    return ka.every(k => a[k] === b[k]);
+  }
+
+  return {
+    start() {
+      const keys = Object.keys(RECIPES);
+      menu = keys[Math.floor(Math.random() * keys.length)];
+      bread = ''; vegEls = []; patty = '';
+
+      qsa('.bread-item').forEach(b => b.classList.remove('sel'));
+      $('bread-sum').innerHTML = '선택된 빵: <em>없음</em>';
+      $('bread-ok').disabled = true;
+      $('mon-menu').textContent = menu;
+      $('hdr-menu').textContent = '[ ' + menu + ' ]';
+
+      buildSauceGrid();
+
+      qsa('.veg-item').forEach(v => v.classList.remove('sel'));
+      $('veg-sum').innerHTML = '선택된 재료: <em>없음</em>';
+
+      qsa('.patty-card').forEach(p => p.classList.remove('sel'));
+      $('patty-sum').innerHTML = '선택된 패티: <em>없음</em>';
+      $('patty-ok').disabled = true;
+
+      prog(0);
+      show('s-bread');
+      startTick();
+    },
+
+    pickBread(el, name) {
+      qsa('.bread-item').forEach(b => b.classList.remove('sel'));
+      el.classList.add('sel');
+      bread = name;
+      $('bread-sum').innerHTML = '선택된 빵: <em>' + name + '</em>';
+      $('bread-ok').disabled = false;
+    },
+
+    gotoSauce() {
+      if (!bread) return;
+      prog(1);
+      show('s-sauce');
+    },
+
+    sChg(name, delta) {
+      sauces[name] = Math.max(0, (sauces[name] || 0) + delta);
+      $('sn-' + name).textContent = sauces[name];
+      $('sc-' + name).classList.toggle('sel', sauces[name] > 0);
+      refreshSauceSummary();
+    },
+
+    gotoVeggie() {
+      prog(2);
+      show('s-veggie');
+    },
+
+    togVeg(el) {
+      if (el.classList.contains('sel')) {
+        el.classList.remove('sel');
+        vegEls = vegEls.filter(v => v !== el);
+      } else {
+        el.classList.add('sel');
+        vegEls.push(el);
+      }
+      const names = vegEls.map(v => v.dataset.name).join(', ');
+      $('veg-sum').innerHTML = '선택된 재료: <em>' + (names || '없음') + '</em>';
+    },
+
+    gotoPatty() {
+      prog(3);
+      show('s-patty');
+    },
+
+    pickPatty(el, name) {
+      qsa('.patty-card').forEach(p => p.classList.remove('sel'));
+      el.classList.add('sel');
+      patty = name;
+      $('patty-sum').innerHTML = '선택된 패티: <em>' + name + '</em>';
+      $('patty-ok').disabled = false;
+    },
+
+    finish() {
+      if (!patty) return;
+      stopTick();
+      const r = RECIPES[menu];
+
+      // Bread check
+      const bOk = bread === r.bread;
+
+      // Sauce check
+      const selSauceEntries = Object.entries(sauces).filter(([,v]) => v > 0);
+      const rSauceKeys = Object.keys(r.sauces);
+      let sOk = selSauceEntries.length === rSauceKeys.length;
+      if (sOk) {
+        for (const [k, v] of Object.entries(r.sauces)) {
+          if ((sauces[k] || 0) !== v) { sOk = false; break; }
+        }
+      }
+
+      // Veggie check
+      const selNames = vegEls.map(v => v.dataset.name);
+      const vOk = mapsEqual(countMap(selNames), countMap(r.veggies));
+
+      // Patty check
+      const pOk = patty === r.patty;
+
+      // Scores: bread=1, sauce=2, veggie=1, patty=1 → total 5
+      const recipeScore = (bOk ? 1 : 0) + (sOk ? 2 : 0) + (vOk ? 1 : 0) + (pOk ? 1 : 0);
+
+      const t = elapsed;
+      const speedScore = t <= 15 ? 5 : t <= 18 ? 4 : t <= 21 ? 3 : t <= 24 ? 2 : t <= 27 ? 1 : 0;
+      const total = recipeScore + speedScore;
+
+      const rSaucesStr = Object.entries(r.sauces).map(([k,v]) => `${k}×${v}`).join(', ');
+      const pSaucesStr = selSauceEntries.map(([k,v]) => `${k}×${v}`).join(', ') || '없음';
+
+      const rows = [
+        { label: '빵 (1점)', ok: bOk, exp: r.bread, got: bread },
+        { label: '소스 (2점)', ok: sOk, exp: rSaucesStr, got: pSaucesStr },
+        { label: '야채/재료 (1점)', ok: vOk, exp: r.veggies.join(', '), got: selNames.join(', ') || '없음' },
+        { label: '패티 (1점)', ok: pOk, exp: r.patty, got: patty }
+      ];
+
+      let html = `<div class="score-menu">${menu}</div>`;
+      rows.forEach(row => {
+        html += `<div class="score-row"><span>${row.label}</span><span class="${row.ok ? 'ok' : 'ng'}">${row.ok ? '✓ 정확' : '✗ 오류'}</span></div>`;
+        if (!row.ok) html += `<div class="score-hint">정답: ${row.exp} &nbsp;/&nbsp; 선택: ${row.got}</div>`;
+      });
+      html += `<div class="score-pts"><span>레시피 점수</span><span>${recipeScore} / 5</span></div>`;
+      html += `<div class="score-pts"><span>스피드 (${t.toFixed(1)}초)</span><span>${speedScore} / 5</span></div>`;
+      html += `<div class="score-total">${total} / 10</div>`;
+
+      $('score-box').innerHTML = html;
+      prog(4);
+      show('s-score');
+    },
+
+    restart() {
+      $('hdr-menu').textContent = '';
+      $('hdr-timer').textContent = '';
+      show('s-start');
+    }
+  };
+})();
+</script>
+</body>
+</html>
