@@ -138,11 +138,22 @@ body {
   border-radius: 6px;
   color: #ccc;
   cursor: pointer;
-  font-size: 0.9em;
+  font-size: 0.85em;
   text-align: center;
   font-family: inherit;
   transition: all 0.15s;
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  justify-content: center;
+}
+.bread-item canvas {
+  width: 2.5em;
+  height: 2.5em;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 .bread-item:hover { border-color: #ffc72c; color: #fff; }
 .bread-item.sel {
@@ -225,8 +236,14 @@ body {
   align-items: center;
   gap: 0.25em;
 }
+.sauce-card canvas {
+  width: 2em;
+  height: 2em;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 .sauce-card.sel { background: #1a4a2a; border-color: #00cc66; }
-.sauce-name { color: #ccc; font-size: 0.7em; text-align: center; line-height: 1.2; }
+.sauce-name { color: #ccc; font-size: 0.65em; text-align: center; line-height: 1.2; }
 .sauce-ctrl { display: flex; align-items: center; gap: 0.25em; }
 .sauce-btn {
   width: 1.5em; height: 1.5em;
@@ -251,10 +268,20 @@ body {
   border-radius: 6px;
   color: #ccc;
   cursor: pointer;
-  font-size: 0.82em;
+  font-size: 0.75em;
   font-family: inherit;
   font-weight: bold;
   transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+}
+.veg-item canvas {
+  width: 1.8em;
+  height: 1.8em;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 .veg-item:hover { border-color: #ffc72c; color: #fff; }
 .veg-item.sel { background: #1a5276; border-color: #00cc66; color: #fff; }
@@ -284,10 +311,20 @@ body {
   font-weight: bold;
   transition: all 0.15s;
   line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  justify-content: center;
+}
+.patty-card canvas {
+  width: 3.5em;
+  height: 3.5em;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 .patty-card:hover { border-color: #ffc72c; color: #fff; }
 .patty-card.sel { background: #4a1a7a; border-color: #ffc72c; color: #fff; }
-.patty-icon { font-size: 1.6em; display: block; margin-bottom: 0.3em; }
 
 /* ===== SCORE ===== */
 #s-score {
@@ -399,12 +436,7 @@ body {
     <div class="scr" id="s-bread">
       <div class="left-col">
         <div class="panel-title">빵 선택</div>
-        <div class="bread-list">
-          <button class="bread-item" onclick="G.pickBread(this,'레귤러번')">레귤러번</button>
-          <button class="bread-item" onclick="G.pickBread(this,'쿼터번')">쿼터번</button>
-          <button class="bread-item" onclick="G.pickBread(this,'빅맥번')">빅맥번</button>
-          <button class="bread-item" onclick="G.pickBread(this,'브리오슈번')">브리오슈번</button>
-          <button class="bread-item" onclick="G.pickBread(this,'또띠야')">또띠야</button>
+        <div class="bread-list" id="bread-list">
         </div>
         <div class="summary" id="bread-sum">선택된 빵: <em>없음</em></div>
         <button class="btn-ok" id="bread-ok" disabled onclick="G.gotoSauce()">확인</button>
@@ -440,21 +472,11 @@ body {
       <div>
         <div class="row-label">2단 재료 (위층)</div>
         <div class="veg-row" id="veg2">
-          <button class="veg-item" data-name="치즈" onclick="G.togVeg(this)">치즈</button>
-          <button class="veg-item" data-name="베이컨" onclick="G.togVeg(this)">베이컨</button>
-          <button class="veg-item" data-name="1/2베이컨" onclick="G.togVeg(this)">1/2베이컨</button>
-          <button class="veg-item" data-name="양파" onclick="G.togVeg(this)">양파</button>
-          <button class="veg-item" data-name="피클" onclick="G.togVeg(this)">피클</button>
         </div>
       </div>
       <div>
         <div class="row-label">1단 재료 (아래층)</div>
         <div class="veg-row" id="veg1">
-          <button class="veg-item" data-name="토마토" onclick="G.togVeg(this)">토마토</button>
-          <button class="veg-item" data-name="쉬레드" onclick="G.togVeg(this)">쉬레드</button>
-          <button class="veg-item" data-name="랜덤" onclick="G.togVeg(this)">랜덤</button>
-          <button class="veg-item" data-name="쉬레드" onclick="G.togVeg(this)">쉬레드</button>
-          <button class="veg-item" data-name="랜덤" onclick="G.togVeg(this)">랜덤</button>
         </div>
       </div>
       <div class="summary" id="veg-sum" style="flex:1">선택된 재료: <em>없음</em></div>
@@ -464,16 +486,7 @@ body {
     <!-- PATTY -->
     <div class="scr" id="s-patty">
       <div class="panel-title">패티 선택</div>
-      <div class="patty-row">
-        <button class="patty-card" onclick="G.pickPatty(this,'함박패티')">
-          <span class="patty-icon">[HB]</span>함박패티
-        </button>
-        <button class="patty-card" onclick="G.pickPatty(this,'10:1패티')">
-          <span class="patty-icon">[10:1]</span>10:1패티
-        </button>
-        <button class="patty-card" onclick="G.pickPatty(this,'맥치킨패티')">
-          <span class="patty-icon">[MC]</span>맥치킨패티
-        </button>
+      <div class="patty-row" id="patty-row">
       </div>
       <div class="summary" id="patty-sum">선택된 패티: <em>없음</em></div>
       <button class="btn-ok" id="patty-ok" disabled onclick="G.finish()">완료</button>
@@ -517,6 +530,151 @@ const SAUCE_LIST = [
   '불고기소스','케찹','겨자'
 ];
 
+const BREAD_TYPES = ['레귤러번', '쿼터번', '빅맥번', '브리오슈번', '또띠야'];
+const VEG_TYPES = {
+  '2단': ['치즈', '베이컨', '1/2베이컨', '양파', '피클'],
+  '1단': ['토마토', '쉬레드', '랜덤', '쉬레드', '랜덤']
+};
+const PATTY_TYPES = ['함박패티', '10:1패티', '맥치킨패티'];
+
+// ===== Pixel Art 생성 함수 =====
+const PixelArt = (() => {
+  const colors = {
+    bread: ['#d4a574', '#c89968', '#d4af85'],
+    cheese: '#ffd700',
+    lettuce: '#90ee90',
+    tomato: '#ff6347',
+    pickle: '#556b2f',
+    bacon: '#8b4513',
+    mayo: '#fffacd',
+    sauce: '#8b0000',
+    special: '#ff8c00'
+  };
+
+  function drawBread(type) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 40;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    let color = '#d4a574';
+    if (type.includes('빅맥') || type.includes('브리오슈')) color = '#d4af85';
+
+    ctx.fillStyle = color;
+    for (let i = 0; i < 40; i++) {
+      for (let j = 0; j < 40; j++) {
+        if ((i + j) % 3 === 0) ctx.fillRect(i, j, 1, 1);
+      }
+    }
+
+    ctx.fillStyle = '#8b6f47';
+    ctx.fillRect(5, 5, 30, 20);
+    for (let i = 0; i < 6; i++) {
+      ctx.fillRect(10 + i * 5, 8, 2, 2);
+    }
+
+    return c;
+  }
+
+  function drawSauce(name) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 32;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    const colorMap = {
+      '프로모션소스': '#ff6b35',
+      '스페셜스모키': '#2c3e50',
+      '스파이시어니언소스': '#ff8c42',
+      '빅맥소스': '#8b0000',
+      '화이트마요': '#fffacd',
+      '칠리소스': '#cc0000',
+      '불고기소스': '#654321',
+      '케찹': '#dc143c',
+      '겨자': '#ffd700'
+    };
+
+    const color = colorMap[name] || '#ff6b35';
+    ctx.fillStyle = color;
+    ctx.fillRect(4, 4, 24, 24);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillRect(6, 6, 4, 4);
+
+    return c;
+  }
+
+  function drawVeggie(name) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 28;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    const colorMap = {
+      '치즈': '#ffd700',
+      '베이컨': '#8b4513',
+      '1/2베이컨': '#a0522d',
+      '양파': '#daa520',
+      '피클': '#556b2f',
+      '토마토': '#ff6347',
+      '쉬레드': '#90ee90',
+      '랜덤': '#9370db'
+    };
+
+    const color = colorMap[name] || '#90ee90';
+    ctx.fillStyle = color;
+
+    if (name === '치즈') {
+      ctx.fillRect(4, 4, 20, 20);
+      ctx.strokeStyle = '#ffed4e';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(4, 4, 20, 20);
+    } else if (name === '베이컨' || name === '1/2베이컨') {
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(4 + i * 6, 4 + (i % 2) * 8, 5, 16);
+      }
+    } else if (name === '쉬레드') {
+      for (let i = 0; i < 20; i++) {
+        ctx.fillRect(4 + i, 4 + (i % 3) * 4, 1, 3);
+      }
+    } else {
+      ctx.fillRect(4, 4, 20, 20);
+    }
+
+    return c;
+  }
+
+  function drawPatty(type) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 56;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    const colorMap = {
+      '함박패티': '#6b4423',
+      '10:1패티': '#5c3a1f',
+      '맥치킨패티': '#8b6f47'
+    };
+
+    const color = colorMap[type] || '#6b4423';
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(28, 28, 22, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(139, 111, 71, 0.6)';
+    for (let i = 0; i < 30; i++) {
+      const x = 8 + Math.random() * 40;
+      const y = 18 + Math.random() * 20;
+      ctx.fillRect(x, y, 2, 2);
+    }
+
+    return c;
+  }
+
+  return { drawBread, drawSauce, drawVeggie, drawPatty };
+})();
+
+// ===== 게임 로직 =====
 const G = (() => {
   let menu = '', bread = '', sauces = {}, vegEls = [], patty = '';
   let t0 = 0, elapsed = 0, tid = null;
@@ -553,6 +711,20 @@ const G = (() => {
     elapsed = (Date.now() - t0) / 1000;
   }
 
+  function buildBreadButtons() {
+    const list = $('bread-list');
+    list.innerHTML = '';
+    BREAD_TYPES.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'bread-item';
+      btn.onclick = function() { G.pickBread(this, name); };
+      const canvas = PixelArt.drawBread(name);
+      btn.appendChild(canvas);
+      btn.appendChild(document.createTextNode(name));
+      list.appendChild(btn);
+    });
+  }
+
   function buildSauceGrid() {
     sauces = {};
     SAUCE_LIST.forEach(n => sauces[n] = 0);
@@ -562,16 +734,65 @@ const G = (() => {
       const d = document.createElement('div');
       d.className = 'sauce-card';
       d.id = 'sc-' + name;
-      d.innerHTML =
-        `<div class="sauce-name">${name}</div>` +
-        `<div class="sauce-ctrl">` +
-          `<button class="sauce-btn" onclick="G.sChg('${name}',-1)">-</button>` +
-          `<span class="sauce-count" id="sn-${name}">0</span>` +
-          `<button class="sauce-btn" onclick="G.sChg('${name}',1)">+</button>` +
-        `</div>`;
+      const canvas = PixelArt.drawSauce(name);
+      d.appendChild(canvas);
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'sauce-name';
+      nameDiv.textContent = name;
+      d.appendChild(nameDiv);
+      const ctrl = document.createElement('div');
+      ctrl.className = 'sauce-ctrl';
+      ctrl.innerHTML =
+        `<button class="sauce-btn" onclick="G.sChg('${name}',-1)">-</button>` +
+        `<span class="sauce-count" id="sn-${name}">0</span>` +
+        `<button class="sauce-btn" onclick="G.sChg('${name}',1)">+</button>`;
+      d.appendChild(ctrl);
       g.appendChild(d);
     });
     refreshSauceSummary();
+  }
+
+  function buildVeggieButtons() {
+    const veg2 = $('veg2');
+    const veg1 = $('veg1');
+    veg2.innerHTML = '';
+    veg1.innerHTML = '';
+
+    VEG_TYPES['2단'].forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'veg-item';
+      btn.dataset.name = name;
+      btn.onclick = function() { G.togVeg(this); };
+      const canvas = PixelArt.drawVeggie(name);
+      btn.appendChild(canvas);
+      btn.appendChild(document.createTextNode(name));
+      veg2.appendChild(btn);
+    });
+
+    VEG_TYPES['1단'].forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'veg-item';
+      btn.dataset.name = name;
+      btn.onclick = function() { G.togVeg(this); };
+      const canvas = PixelArt.drawVeggie(name);
+      btn.appendChild(canvas);
+      btn.appendChild(document.createTextNode(name));
+      veg1.appendChild(btn);
+    });
+  }
+
+  function buildPattyButtons() {
+    const row = $('patty-row');
+    row.innerHTML = '';
+    PATTY_TYPES.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'patty-card';
+      btn.onclick = function() { G.pickPatty(this, name); };
+      const canvas = PixelArt.drawPatty(name);
+      btn.appendChild(canvas);
+      btn.appendChild(document.createTextNode(name));
+      row.appendChild(btn);
+    });
   }
 
   function refreshSauceSummary() {
@@ -598,18 +819,18 @@ const G = (() => {
       menu = keys[Math.floor(Math.random() * keys.length)];
       bread = ''; vegEls = []; patty = '';
 
-      qsa('.bread-item').forEach(b => b.classList.remove('sel'));
-      $('bread-sum').innerHTML = '선택된 빵: <em>없음</em>';
-      $('bread-ok').disabled = true;
       $('mon-menu').textContent = menu;
       $('hdr-menu').textContent = '[ ' + menu + ' ]';
 
-      buildSauceGrid();
+      buildBreadButtons();
+      $('bread-sum').innerHTML = '선택된 빵: <em>없음</em>';
+      $('bread-ok').disabled = true;
 
-      qsa('.veg-item').forEach(v => v.classList.remove('sel'));
+      buildSauceGrid();
+      buildVeggieButtons();
       $('veg-sum').innerHTML = '선택된 재료: <em>없음</em>';
 
-      qsa('.patty-card').forEach(p => p.classList.remove('sel'));
+      buildPattyButtons();
       $('patty-sum').innerHTML = '선택된 패티: <em>없음</em>';
       $('patty-ok').disabled = true;
 
@@ -674,10 +895,8 @@ const G = (() => {
       stopTick();
       const r = RECIPES[menu];
 
-      // Bread check
       const bOk = bread === r.bread;
 
-      // Sauce check
       const selSauceEntries = Object.entries(sauces).filter(([,v]) => v > 0);
       const rSauceKeys = Object.keys(r.sauces);
       let sOk = selSauceEntries.length === rSauceKeys.length;
@@ -687,14 +906,11 @@ const G = (() => {
         }
       }
 
-      // Veggie check
       const selNames = vegEls.map(v => v.dataset.name);
       const vOk = mapsEqual(countMap(selNames), countMap(r.veggies));
 
-      // Patty check
       const pOk = patty === r.patty;
 
-      // Scores: bread=1, sauce=2, veggie=1, patty=1 → total 5
       const recipeScore = (bOk ? 1 : 0) + (sOk ? 2 : 0) + (vOk ? 1 : 0) + (pOk ? 1 : 0);
 
       const t = elapsed;
